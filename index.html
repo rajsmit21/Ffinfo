@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch UID Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 200px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #resultContainer {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Fetch UID Information</h1>
+
+<label for="uidInput">Enter UID:</label>
+<input type="text" id="uidInput" placeholder="Enter UID">
+<button onclick="getUidInfo()">Fetch Info</button>
+
+<div id="resultContainer"></div>
+
+<script>
+    function getUidInfo() {
+        const uid = document.getElementById('uidInput').value;
+        const resultContainer = document.getElementById('resultContainer');
+
+        if (!uid) {
+            alert("Please enter a UID.");
+            return;
+        }
+
+        // Construct the target API URL
+        const url = `https://profile-sand-mu.vercel.app/api?uid=${uid}&region=ind&key=Another`;
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "accept": "*/*",
+                "accept-language": "en-GB,en-IN;q=0.9,en-US;q=0.8,en;q=0.7",
+                "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Chromium\";v=\"124\"",
+                "sec-ch-ua-mobile": "?1",
+                "sec-ch-ua-platform": "\"Android\"",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "cross-site",
+                "Referer": "https://freefireinfo.in/",
+                "Referrer-Policy": "strict-origin-when-cross-origin"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Raw API Response:', data);
+
+            if (data) {
+                // Display the full response as raw JSON
+                resultContainer.innerHTML = JSON.stringify(data, null, 2);
+            } else {
+                resultContainer.innerHTML = '<p class="error-message">Error: Missing data in response.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+            resultContainer.innerHTML = '<p class="error-message">Error: Failed to fetch data. Please check the console for more details.</p>';
+        });
+    }
+</script>
+
+</body>
+</html>
