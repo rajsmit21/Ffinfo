@@ -1,104 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch UID Information</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        input[type="text"] {
-            padding: 10px;
-            width: 200px;
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #resultContainer {
-            margin-top: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background-color: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .error-message {
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetch Full Account Info</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    form {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    input[type="text"], select {
+      padding: 10px;
+      font-size: 1rem;
+      border: 2px solid #4CAF50;
+      border-radius: 5px;
+      margin-right: 10px;
+      width: 60%;
+      max-width: 300px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #user-info {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: #4CAF50;
+      margin-bottom: 10px;
+    }
+
+    .error {
+      color: red;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .info-header {
+      color: #333;
+      font-size: 1.2rem;
+      text-align: center;
+      padding: 10px;
+      background-color: #eef2f7;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .table-container {
+      margin-bottom: 40px;
+    }
+
+    /* Adding responsive styling */
+    @media screen and (max-width: 768px) {
+      .container {
+        width: 90%;
+      }
+
+      input[type="text"], select {
+        width: 80%;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<h1>Fetch UID Information</h1>
+  <header>
+    <h1>Enter UID and Select Region to Check Full Account Info</h1>
+  </header>
 
-<label for="uidInput">Enter UID:</label>
-<input type="text" id="uidInput" placeholder="Enter UID">
-<button onclick="getUidInfo()">Fetch Info</button>
+  <div class="container">
+    <form id="uid-form">
+      <input type="text" id="uid" name="uid" placeholder="Enter UID" required>
+      
+      <select id="region">
+        <option value="ind">India</option>
+        <option value="bd">Bangladesh</option>
+        <option value="br">Brazil</option>
+        <option value="cis">CIS</option>
+        <option value="eu">Europe</option>
+        <option value="id">Indonesia</option>
+        <option value="mea">Middle East & Africa</option>
+        <option value="na">North America</option>
+        <option value="sac">South America - Spanish</option>
+        <option value="pk">Pakistan</option>
+        <option value="sg">Singapore</option>
+        <option value="th">Thailand</option>
+        <option value="tw">Taiwan</option>
+        <option value="us">United States</option>
+        <option value="vn">Vietnam</option>
+      </select>
+      
+      <button type="submit">Check Info</button>
+    </form>
 
-<div id="resultContainer"></div>
+    <div id="user-info"></div>
+  </div>
 
-<script>
-    function getUidInfo() {
-        const uid = document.getElementById('uidInput').value;
-        const resultContainer = document.getElementById('resultContainer');
+  <script>
+    document.getElementById('uid-form').addEventListener('submit', function(event) {
+      event.preventDefault();
 
-        if (!uid) {
-            alert("Please enter a UID.");
-            return;
-        }
+      // Get UID entered by user
+      const uid = document.getElementById('uid').value.trim();
+      const region = document.getElementById('region').value;
 
-        // Construct the target API URL
-        const url = `https://profile-sand-mu.vercel.app/api?uid=${uid}&region=ind&key=Another`;
+      if (uid && region) {
+        // API URL with dynamic UID and region
+        const apiUrl = `https://profile-sand-mu.vercel.app/api?uid=${uid}&region=${region}&key=Another`;
 
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                "accept": "*/*",
-                "accept-language": "en-GB,en-IN;q=0.9,en-US;q=0.8,en;q=0.7",
-                "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Chromium\";v=\"124\"",
-                "sec-ch-ua-mobile": "?1",
-                "sec-ch-ua-platform": "\"Android\"",
-                "sec-fetch-dest": "empty",
-                "sec-fetch-mode": "cors",
-                "sec-fetch-site": "cross-site",
-                "Referer": "https://freefireinfo.in/",
-                "Referrer-Policy": "strict-origin-when-cross-origin"
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Raw API Response:', data);
+        // Use CORS proxy (AllOrigins) to bypass CORS issues
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
 
-            if (data) {
-                // Display the full response as raw JSON
-                resultContainer.innerHTML = JSON.stringify(data, null, 2);
+        // Fetch data from the API
+        fetch(proxyUrl)
+          .then(response => response.json())
+          .then(data => {
+            // Parse the JSON data from the response
+            const jsonData = JSON.parse(data.contents);
+
+            // Check if account data is available
+            if (jsonData && jsonData.AccountInfo) {
+              const accountInfo = jsonData.AccountInfo;
+              const accountProfileInfo = jsonData.AccountProfileInfo;
+              const guildInfo = jsonData.GuildInfo;
+              const creditScoreInfo = jsonData.creditScoreInfo;
+              const petInfo = jsonData.petInfo;
+              const socialInfo = jsonData.socialinfo;
+
+              const tableHtml = `
+                <div class="info-header">
+                  <h2>Account Information</h2>
+                </div>
+
+                <div class="table-container">
+                  <table>
+                    <tr><th>Account Name</th><td>${accountInfo.AccountName}</td></tr>
+                    <tr><th>Account ID</th><td>${accountInfo.AccountId}</td></tr>
+                    <tr><th>Account Level</th><td>${accountInfo.AccountLevel}</td></tr>
+                    <tr><th>Account Likes</th><td>${accountInfo.AccountLikes}</td></tr>
+                    <tr><th>Account Region</th><td>${accountInfo.AccountRegion}</td></tr>
+                    <tr><th>Account Type</th><td>${accountInfo.AccountType}</td></tr>
+                    <tr><th>BR Rank</th><td>${accountInfo.BrMaxRank}</td></tr>
+                    <tr><th>BR Rank Points</th><td>${accountInfo.BrRankPoint}</td></tr>
+                    <tr><th>Release Version</th><td>${accountInfo.ReleaseVersion}</td></tr>
+                  </table>
+                </div>
+
+                <div class="info-header">
+                  <h2>Account Profile Info</h2>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <tr><th>Equipped Skills</th><td>${accountProfileInfo.EquippedSkills.join(', ')}</td></tr>
+                  </table>
+                </div>
+
+                <div class="info-header">
+                  <h2>Guild Info</h2>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <tr><th>Guild Name</th><td>${guildInfo.GuildName}</td></tr>
+                    <tr><th>Guild Capacity</th><td>${guildInfo.GuildCapacity}</td></tr>
+                    <tr><th>Guild Level</th><td>${guildInfo.GuildLevel}</td></tr>
+                    <tr><th>Guild Members</th><td>${guildInfo.GuildMember}</td></tr>
+                    <tr><th>Guild Owner</th><td>${guildInfo.GuildOwner}</td></tr>
+                  </table>
+                </div>
+
+                <div class="info-header">
+                  <h2>Credit Score Info</h2>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <tr><th>Credit Score</th><td>${creditScoreInfo.creditScore}</td></tr>
+                  </table>
+                </div>
+
+                <div class="info-header">
+                  <h2>Pet Info</h2>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <tr><th>Pet Level</th><td>${petInfo.level}</td></tr>
+                    <tr><th>Pet EXP</th><td>${petInfo.exp}</td></tr>
+                    <tr><th>Pet Skin ID</th><td>${petInfo.skinId}</td></tr>
+                  </table>
+                </div>
+
+                <div class="info-header">
+                  <h2>Social Info</h2>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <tr><th>Language</th><td>${socialInfo.AccountLanguage}</td></tr>
+                    <tr><th>Preferred Mode</th><td>${socialInfo.AccountPreferMode}</td></tr>
+                    <tr><th>Signature</th><td>${socialInfo.AccountSignature}</td></tr>
+                  </table>
+                </div>
+              `;
+
+              // Display the result
+              document.getElementById('user-info').innerHTML = tableHtml;
             } else {
-                resultContainer.innerHTML = '<p class="error-message">Error: Missing data in response.</p>';
+              document.getElementById('user-info').innerHTML = '<p class="error">Error: Missing data in response.</p>';
             }
-        })
-        .catch(error => {
-            console.error('Fetch Error:', error);
-            resultContainer.innerHTML = '<p class="error-message">Error: Failed to fetch data. Please check the console for more details.</p>';
-        });
-    }
-</script>
+          })
+          .catch(error => {
+            document.getElementById('user-info').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+          });
+      }
+    });
+  </script>
 
 </body>
 </html>
